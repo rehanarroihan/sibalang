@@ -52,12 +52,14 @@
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="textPassword"
             android:fontFamily="@font/google_sans_regular"
             android:hint="Password" />
 
     </android.support.design.widget.TextInputLayout>
 
     <Button
+        android:id="@+id/buttonLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Masuk"
