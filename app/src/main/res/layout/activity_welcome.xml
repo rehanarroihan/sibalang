@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorBody"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".WelcomeActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="124dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Selamat Datang,"
+            android:textColor="@color/colorFont"
+            android:fontFamily="@font/google_sans_bold"
+            android:textSize="42sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="di aplikasi pencarian dan pelaporan \nbarang hilang"
+            android:layout_marginTop="-2dp"
+            android:textColor="@color/colorFont"
+            android:fontFamily="@font/google_sans_medium"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/buttonDaftar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Daftar"
+            android:background="@drawable/rounded_button_outline"
+            android:textColor="@color/colorPrimaryDark"
+            android:fontFamily="@font/google_sans_medium"
+            android:focusable="false"
+            android:inputType="textCapSentences"/>
+
+        <Button
+            android:id="@+id/buttonMasuk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Masuk"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_button"
+            android:textColor="@android:color/white"
+            android:focusable="false"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="@font/google_sans_medium"
+            android:inputType="textCapSentences"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

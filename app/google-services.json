@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "350738234276",
+    "firebase_url": "https://si-balang.firebaseio.com",
+    "project_id": "si-balang",
+    "storage_bucket": "si-balang.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350738234276:android:72e44e41ba786905",
+        "android_client_info": {
+          "package_name": "com.uyab.sibalang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "350738234276-2313t49f49rktdrtss0l9ircn058htqr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uyab.sibalang",
+            "certificate_hash": "066eb8254604a83de0938ede652f898c6f57b081"
+          }
+        },
+        {
+          "client_id": "350738234276-j8bmnpkeg7i9socgda3rig62h2p3q6ou.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo65j28B45LnpjpoL5dNzA-fMYTOy0nrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "350738234276-j8bmnpkeg7i9socgda3rig62h2p3q6ou.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
