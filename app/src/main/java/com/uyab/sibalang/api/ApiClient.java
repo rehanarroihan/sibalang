@@ -11,7 +11,7 @@ public class ApiClient {
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(GlobalConfig.MAIN_API_URL)
+                    .baseUrl(GlobalConfig.API_BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

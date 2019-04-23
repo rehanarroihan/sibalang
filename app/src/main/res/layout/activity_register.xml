@@ -2,7 +2,6 @@
 <LinearLayout
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -53,6 +52,7 @@
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="textPassword"
             android:fontFamily="@font/google_sans_regular"
             android:hint="Password" />
 
@@ -153,13 +153,13 @@
     </RadioGroup>
 
     <Button
+        android:id="@+id/buttonDaftar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Daftar"
         android:layout_marginTop="24dp"
         android:background="@drawable/rounded_button"
         android:textColor="@android:color/white"
-        android:fontFamily="@font/google_sans_medium"
-        android:inputType="textCapSentences"/>
+        android:fontFamily="@font/google_sans_medium" />
 
 </LinearLayout>
