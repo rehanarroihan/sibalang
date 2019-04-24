@@ -4,17 +4,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.pixplicity.easyprefs.library.Prefs;
-import com.uyab.sibalang.Util.GlobalConfig;
 import com.uyab.sibalang.Util.RetrofitErrorUtils;
 import com.uyab.sibalang.adapter.StuffAdapter;
 import com.uyab.sibalang.api.ApiClient;
@@ -32,8 +30,13 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     private String TAG = "MainActivity";
     private RecyclerView rv;
-    private ArrayList<Stuff> stuff;
+    private ArrayList<Stuff> mList;
+    private ArrayList<Stuff> mListAll = new ArrayList<>();
     private StuffAdapter stuffAdapter;
+
+    boolean isFiltered;
+    ArrayList<Integer> mListMapFilter = new ArrayList<>();
+    String mQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,25 @@ public class MainActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setVisibility(View.INVISIBLE);
+        setTitle("Si Balang");
+
+        SearchView searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(
+                new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        mQuery = newText.toLowerCase();
+                        doFilter(mQuery);
+                        return true;
+                    }
+                }
+        );
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -53,13 +75,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         rv = findViewById(R.id.recyclerViewList);
-        stuff = new ArrayList<>();
+        mList = new ArrayList<>();
         LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         rv.setLayoutManager(layoutManager);
-        stuffAdapter = new StuffAdapter(stuff, new StuffAdapter.StuffInterface() {
+        stuffAdapter = new StuffAdapter(mList, new StuffAdapter.StuffInterface() {
             @Override
             public void doClick(int post) {
-
+                startActivity(new Intent(MainActivity.this, StuffDetailActivity.class));
             }
         }, MainActivity.this);
         rv.setAdapter(stuffAdapter);
@@ -82,6 +104,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void doFilter(String query) {
+        if (!isFiltered) {
+            mListAll.clear();
+            mListAll.addAll(mList);
+            isFiltered = true;
+        }
+
+        mList.clear();
+        if (query == null || query.isEmpty()) {
+            mList.addAll(mListAll);
+            isFiltered = false;
+        } else {
+            mListMapFilter.clear();
+            for (int i = 0; i < mListAll.size(); i++) {
+                Stuff stuff= mListAll.get(i);
+                if (stuff.getName().toLowerCase().contains(query) ||
+                        stuff.getDescription().toLowerCase().contains(query)) {
+                    mList.add(stuff);
+                    mListMapFilter.add(i);
+                }
+            }
+        }
+        stuffAdapter.notifyDataSetChanged();
+    }
+
     private void getData() {
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         Call<StuffResponse> stuffCall = api.stuffList();
@@ -91,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
-                        stuff.add(response.body().getStuff());
+                        mList.addAll(response.body().getStuff());
                         stuffAdapter.notifyDataSetChanged();
                     }
                     Toast.makeText(MainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();

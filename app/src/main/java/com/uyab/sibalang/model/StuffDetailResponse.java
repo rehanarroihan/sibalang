@@ -4,15 +4,15 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
-public class StuffResponse {
+public class StuffDetailResponse {
     @SerializedName("errCode")
     private String errCode;
     @SerializedName("message")
     private String message;
     @SerializedName("stuffs")
-    private ArrayList<Stuff> stuff;
+    private Stuff stuff;
 
-    public StuffResponse(String errCode, String message, ArrayList<Stuff> stuff) {
+    public StuffDetailResponse(String errCode, String message, Stuff stuff) {
         this.errCode = errCode;
         this.message = message;
         this.stuff = stuff;
@@ -34,11 +34,11 @@ public class StuffResponse {
         this.message = message;
     }
 
-    public ArrayList<Stuff> getStuff() {
+    public Stuff getStuff() {
         return stuff;
     }
 
-    public void setStuff(ArrayList<Stuff> stuff) {
+    public void setStuff(Stuff stuff) {
         this.stuff = stuff;
     }
 }
