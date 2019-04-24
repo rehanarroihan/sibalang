@@ -1,6 +1,7 @@
 package com.uyab.sibalang.api;
 
 import com.uyab.sibalang.model.GeneralResponse;
+import com.uyab.sibalang.model.StuffDetailResponse;
 import com.uyab.sibalang.model.StuffResponse;
 
 import java.util.Map;
@@ -51,7 +52,7 @@ public interface ApiInterface {
     Call<StuffResponse> stuffList();
 
     @GET("stuff/{stuff_id}")
-    Call<StuffResponse> stuffDetail(@Path("stuff_id") String stuff_id);
+    Call<StuffDetailResponse> stuffDetail(@Path("stuff_id") String stuff_id);
 
     @FormUrlEncoded
     @POST("stuff/turn")

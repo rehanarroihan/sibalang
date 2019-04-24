@@ -81,7 +81,12 @@ public class MainActivity extends AppCompatActivity {
         stuffAdapter = new StuffAdapter(mList, new StuffAdapter.StuffInterface() {
             @Override
             public void doClick(int post) {
-                startActivity(new Intent(MainActivity.this, StuffDetailActivity.class));
+                Stuff stuff = new Stuff();
+                stuff = mList.get(post);
+
+                Intent i = new Intent(MainActivity.this, StuffDetailActivity.class);
+                i.putExtra(StuffDetailActivity.STUFF_DATA, stuff);
+                startActivity(i);
             }
         }, MainActivity.this);
         rv.setAdapter(stuffAdapter);

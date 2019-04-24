@@ -9,10 +9,12 @@ public class StuffDetailResponse {
     private String errCode;
     @SerializedName("message")
     private String message;
-    @SerializedName("stuffs")
-    private Stuff stuff;
+    @SerializedName("stuff")
+    private StuffDetail stuff;
 
-    public StuffDetailResponse(String errCode, String message, Stuff stuff) {
+    public StuffDetailResponse() {}
+
+    public StuffDetailResponse(String errCode, String message, StuffDetail stuff) {
         this.errCode = errCode;
         this.message = message;
         this.stuff = stuff;
@@ -34,11 +36,11 @@ public class StuffDetailResponse {
         this.message = message;
     }
 
-    public Stuff getStuff() {
+    public StuffDetail getStuff() {
         return stuff;
     }
 
-    public void setStuff(Stuff stuff) {
+    public void setStuff(StuffDetail stuff) {
         this.stuff = stuff;
     }
 }

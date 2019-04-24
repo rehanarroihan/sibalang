@@ -21,6 +21,8 @@ public class Stuff implements Parcelable {
     @SerializedName("nim")
     private String nim;
 
+    public Stuff() {}
+
     public Stuff(String id, String name, String description, String date, String photo, String turned, String nim) {
         this.id = id;
         this.name = name;
