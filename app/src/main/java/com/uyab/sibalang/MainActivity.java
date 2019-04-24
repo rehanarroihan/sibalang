@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Integer> mListMapFilter = new ArrayList<>();
     String mQuery;
 
+    private SwipeRefreshLayout refresh;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +49,22 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setVisibility(View.INVISIBLE);
         setTitle("Si Balang");
+
+        refresh = findViewById(R.id.refresh);
+        refresh.post(new Runnable() {
+                @Override
+                public void run() {
+                    refresh.setRefreshing(true);
+                    getData();
+                }
+            }
+        );
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getData();
+            }
+        });
 
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(
@@ -90,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }, MainActivity.this);
         rv.setAdapter(stuffAdapter);
-        getData();
 
         NestedScrollView mainSV = findViewById(R.id.nestedScrollViewMain);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -155,11 +173,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 }
+                refresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<StuffResponse> call, Throwable t) {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.no_internet_message), Toast.LENGTH_SHORT).show();
+                refresh.setRefreshing(false);
             }
         });
     }

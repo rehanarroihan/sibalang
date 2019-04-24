@@ -16,6 +16,7 @@ import com.uyab.sibalang.Util.RetrofitErrorUtils;
 import com.uyab.sibalang.api.ApiClient;
 import com.uyab.sibalang.api.ApiInterface;
 import com.uyab.sibalang.model.ErrorResponse;
+import com.uyab.sibalang.model.GeneralResponse;
 import com.uyab.sibalang.model.Stuff;
 import com.uyab.sibalang.model.StuffDetail;
 import com.uyab.sibalang.model.StuffDetailResponse;
@@ -39,7 +40,7 @@ public class StuffDetailActivity extends AppCompatActivity {
         setTitle("Detail Barang Hilang");
 
         Intent intent = getIntent();
-        Stuff stuff = intent.getParcelableExtra(STUFF_DATA);
+        final Stuff stuff = intent.getParcelableExtra(STUFF_DATA);
 
         imageViewPict = findViewById(R.id.imageViewPict);
         textViewName = findViewById(R.id.textViewName);
@@ -47,6 +48,13 @@ public class StuffDetailActivity extends AppCompatActivity {
         textViewDesc = findViewById(R.id.textViewDesc);
         textViewStatus = findViewById(R.id.textViewStatus);
         btnClaim = findViewById(R.id.buttonClaim);
+
+        btnClaim.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doClaim(stuff.getId());
+            }
+        });
 
         tvNama = findViewById(R.id.textViewUser);
         tvProdi = findViewById(R.id.textViewFakultas);
@@ -67,6 +75,35 @@ public class StuffDetailActivity extends AppCompatActivity {
         }
 
         getStuffDetail(stuff.getId());
+    }
+
+    private void doClaim(String id) {
+        ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
+        Call<GeneralResponse> stuffTurnCall = api.turnStuff(id);
+        stuffTurnCall.enqueue(new Callback<GeneralResponse>() {
+            @Override
+            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                if ((response.isSuccessful()) && (response.errorBody() == null)) {
+                    String errorCode = response.body().getErrCode();
+                    if (errorCode.equals("00")) {
+                        finish();
+                        Toast.makeText(StuffDetailActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    ErrorResponse error = RetrofitErrorUtils.parseError(response);
+                    String errorMessage = error.message();
+                    if(response.code() == 400) {
+                        errorMessage = getResources().getString(R.string.bad_request);
+                    }
+                    Toast.makeText(StuffDetailActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                Toast.makeText(StuffDetailActivity.this, getResources().getString(R.string.no_internet_message), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void getStuffDetail(String stuffId) {
