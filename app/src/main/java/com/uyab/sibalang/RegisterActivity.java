@@ -69,7 +69,6 @@ public class RegisterActivity extends AppCompatActivity {
                     if (errorCode.equals("00")) {
                         Intent i = new Intent(RegisterActivity.this, LoginActivity.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                         startActivity(i);
                         finish();
                     }

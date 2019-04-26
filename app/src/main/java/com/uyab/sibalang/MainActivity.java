@@ -10,10 +10,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.pixplicity.easyprefs.library.Prefs;
+import com.uyab.sibalang.Util.GlobalConfig;
 import com.uyab.sibalang.Util.RetrofitErrorUtils;
 import com.uyab.sibalang.adapter.StuffAdapter;
 import com.uyab.sibalang.api.ApiClient;
@@ -39,32 +47,13 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Integer> mListMapFilter = new ArrayList<>();
     String mQuery;
 
-    private SwipeRefreshLayout refresh;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setVisibility(View.INVISIBLE);
         setTitle("Si Balang");
-
-        refresh = findViewById(R.id.refresh);
-        refresh.post(new Runnable() {
-                @Override
-                public void run() {
-                    refresh.setRefreshing(true);
-                    getData();
-                }
-            }
-        );
-        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getData();
-            }
-        });
 
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(
@@ -83,6 +72,13 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        TextView tvRefresh = findViewById(R.id.textViewRefresh);
+        tvRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getData();
+            }
+        });
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -109,22 +105,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }, MainActivity.this);
         rv.setAdapter(stuffAdapter);
-
-        NestedScrollView mainSV = findViewById(R.id.nestedScrollViewMain);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mainSV.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-                @Override
-                public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                    //Log.d(TAG, "Y: " + String.valueOf(scrollY));
-                    if (scrollY > 75) {
-                        toolbar.setVisibility(View.VISIBLE);
-                    }
-                    if (scrollY < 75) {
-                        toolbar.setVisibility(View.INVISIBLE);
-                    }
-                }
-            });
-        }
+        getData();
     }
 
     private void doFilter(String query) {
@@ -161,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
+                        Log.d("id", new Gson().toJson(response.body().getStuff()));
+                        mList.clear();
                         mList.addAll(response.body().getStuff());
                         stuffAdapter.notifyDataSetChanged();
                     }
@@ -173,15 +156,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 }
-                refresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<StuffResponse> call, Throwable t) {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.no_internet_message), Toast.LENGTH_SHORT).show();
-                refresh.setRefreshing(false);
             }
         });
     }
 
+    private void doLogout() {
+        Prefs.putBoolean(GlobalConfig.IS_LOGGED_IN, false);
+        startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
+        finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                doLogout();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

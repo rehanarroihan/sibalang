@@ -1,6 +1,7 @@
 package com.uyab.sibalang.api;
 
 import com.uyab.sibalang.model.GeneralResponse;
+import com.uyab.sibalang.model.LoginResponse;
 import com.uyab.sibalang.model.StuffDetailResponse;
 import com.uyab.sibalang.model.StuffResponse;
 
@@ -34,7 +35,7 @@ public interface ApiInterface {
 
     @FormUrlEncoded
     @POST("auth/login")
-    Call<GeneralResponse> login(
+    Call<LoginResponse> login(
             @Field("nim") String nim,
             @Field("password") String password
     );

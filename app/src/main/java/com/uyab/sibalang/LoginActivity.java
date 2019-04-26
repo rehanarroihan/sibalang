@@ -15,6 +15,7 @@ import com.uyab.sibalang.api.ApiClient;
 import com.uyab.sibalang.api.ApiInterface;
 import com.uyab.sibalang.model.ErrorResponse;
 import com.uyab.sibalang.model.GeneralResponse;
+import com.uyab.sibalang.model.LoginResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,19 +43,26 @@ public class LoginActivity extends AppCompatActivity {
 
     private void doLogin() {
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-        Call<GeneralResponse> loginCall = api.login(etNIM.getText().toString(), etPassword.getText().toString());
-        loginCall.enqueue(new Callback<GeneralResponse>() {
+        Call<LoginResponse> loginCall = api.login(etNIM.getText().toString(), etPassword.getText().toString());
+        loginCall.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
                         Prefs.putBoolean(GlobalConfig.IS_LOGGED_IN, true);
-                        Prefs.putString(GlobalConfig.USER_NIM, etNIM.getText().toString());
+                        Prefs.putString(GlobalConfig.USER_ID, response.body().getUserdata().getId());
+                        Prefs.putString(GlobalConfig.USER_NIM, response.body().getUserdata().getNim());
+                        Prefs.putString(GlobalConfig.USER_FULL_NAME, response.body().getUserdata().getFull_name());
+                        Prefs.putString(GlobalConfig.USER_DEPARTMEN, response.body().getUserdata().getDepartmen());
+                        Prefs.putString(GlobalConfig.USER_PROGRAM, response.body().getUserdata().getProgram());
+                        Prefs.putString(GlobalConfig.USER_PHONE, response.body().getUserdata().getPhone());
+                        Prefs.putString(GlobalConfig.USER_POSITION, response.body().getUserdata().getPosition());
 
                         Intent i = new Intent(LoginActivity.this, MainActivity.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(i);
+                        WelcomeActivity.fa.finish();
                         finish();
                     }
                     Toast.makeText(LoginActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
@@ -69,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<GeneralResponse> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, getResources().getString(R.string.no_internet_message), Toast.LENGTH_SHORT).show();
             }
         });

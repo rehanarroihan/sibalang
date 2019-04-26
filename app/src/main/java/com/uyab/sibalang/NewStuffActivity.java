@@ -1,9 +1,7 @@
 package com.uyab.sibalang;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -87,10 +85,10 @@ public class NewStuffActivity extends AppCompatActivity {
     }
 
     private void doUpload() {
-//        if(image == null) {
-//            Toast.makeText(NewStuffActivity.this, "Silahkan pilih gambar", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+        if(image == null) {
+            Toast.makeText(NewStuffActivity.this, "Silahkan pilih gambar", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         File file = createTempFile();
         RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
@@ -134,19 +132,11 @@ public class NewStuffActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
             uriFoto = data.getData();
-            String[] filePath = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(uriFoto, filePath, null, null, null);
-            cursor.moveToFirst();
-            String imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            image = BitmapFactory.decodeFile(imagePath, options);
-
-            ivPicture.setVisibility(View.VISIBLE);
-            ivPicture.setImageURI(uriFoto);
-
-            cursor.close();
+            try {
+                image = MediaStore.Images.Media.getBitmap(getContentResolver(), uriFoto);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
