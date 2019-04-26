@@ -26,7 +26,7 @@ public interface ApiInterface {
     Call<GeneralResponse> register(
             @Field("nim") String nim,
             @Field("password") String password,
-            @Field("fullname") String fullname,
+            @Field("full_name") String fullname,
             @Field("departmen") String departmen,
             @Field("program") String program,
             @Field("phone") String phone,
