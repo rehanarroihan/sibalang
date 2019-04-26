@@ -1,6 +1,8 @@
 package com.uyab.sibalang;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -9,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,10 +27,7 @@ import com.uyab.sibalang.api.ApiInterface;
 import com.uyab.sibalang.model.ErrorResponse;
 import com.uyab.sibalang.model.GeneralResponse;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -37,17 +37,26 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class NewStuffActivity extends AppCompatActivity {
+    public static String INPUT_TYPE = "INPUT_TYPE";
     static final int REQUEST_IMAGE_GET = 1;
     private ImageView ivPicture;
     private EditText etName, etDescription;
-    private Uri uriFoto;
-    private Bitmap image;
+    private String imagePath, type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_stuff);
-        setTitle("Upload Barang Hilang");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        type = getIntent().getStringExtra(INPUT_TYPE);
+        String title;
+        if(type.equals("lost")) {
+            title = "Laporan Kehilangan";
+        } else {
+            title = "Laporan Penemuan";
+        }
+        setTitle(title);
 
         etName = findViewById(R.id.editTextStuff);
         etDescription = findViewById(R.id.editTextDescription);
@@ -71,13 +80,7 @@ public class NewStuffActivity extends AppCompatActivity {
     }
 
     private void pickPhoto() {
-        Intent intent;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-        } else {
-            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-        }
+        Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, REQUEST_IMAGE_GET);
@@ -85,21 +88,29 @@ public class NewStuffActivity extends AppCompatActivity {
     }
 
     private void doUpload() {
-        if(image == null) {
+        if(imagePath == null) {
             Toast.makeText(NewStuffActivity.this, "Silahkan pilih gambar", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        File file = createTempFile();
+        //Processing image to upload
+        File file = new File(imagePath);
         RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("cycle", file.getName(), reqFile);
+        MultipartBody.Part imageRequest = MultipartBody.Part.createFormData("photo", file.getName(), reqFile);
+
+        //Processing another data to send
+        RequestBody id_user = RequestBody.create(MediaType.parse("text/plain"), Prefs.getString(GlobalConfig.USER_ID, null));
+        RequestBody requestType = RequestBody.create(MediaType.parse("text/plain"), type);
+        RequestBody name = RequestBody.create(MediaType.parse("text/plain"), etName.getText().toString());
+        RequestBody description = RequestBody.create(MediaType.parse("text/plain"), etDescription.getText().toString());
 
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
         Call<GeneralResponse> uploadCall = api.addStuff(
-                Prefs.getString(GlobalConfig.USER_NIM, null),
-                etName.getText().toString(),
-                etDescription.getText().toString(),
-                body
+                id_user,
+                requestType,
+                name,
+                description,
+                imageRequest
         );
         uploadCall.enqueue(new Callback<GeneralResponse>() {
             @Override
@@ -108,6 +119,7 @@ public class NewStuffActivity extends AppCompatActivity {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
                         Log.d("Upload", new Gson().toJson(response.body()));
+                        finish();
                     }
                     Toast.makeText(NewStuffActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
@@ -127,35 +139,33 @@ public class NewStuffActivity extends AppCompatActivity {
         });
     }
 
+    private String getRealPathFromURIPath(Uri contentURI, Activity activity) {
+        Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            return contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(idx);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
-            uriFoto = data.getData();
-            try {
-                image = MediaStore.Images.Media.getBitmap(getContentResolver(), uriFoto);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Uri imageUri = data.getData();
+            imagePath = getRealPathFromURIPath(imageUri, NewStuffActivity.this);
+            ivPicture.setImageURI(imageUri);
+            ivPicture.setVisibility(View.VISIBLE);
         }
     }
 
-    private File createTempFile() {
-        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                , System.currentTimeMillis() +"_image.webp");
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        image.compress(Bitmap.CompressFormat.WEBP,0, bos);
-        byte[] bitmapdata = bos.toByteArray();
-        //write the bytes in file
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bitmapdata);
-            fos.flush();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
         }
-        return file;
+        return super.onOptionsItemSelected(item);
     }
 }

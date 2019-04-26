@@ -3,7 +3,6 @@ package com.uyab.sibalang;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +18,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.uyab.sibalang.Util.GlobalConfig;
@@ -80,12 +80,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton btnAddFound = findViewById(R.id.buttonAddFound);
+        FloatingActionButton btnAddLost = findViewById(R.id.buttonAddLost);
+        btnAddFound.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                startActivity(new Intent(MainActivity.this, NewStuffActivity.class));
+                Intent i = new Intent(MainActivity.this, NewStuffActivity.class);
+                i.putExtra(NewStuffActivity.INPUT_TYPE, "found");
+                startActivity(i);
+            }
+        });
+        btnAddLost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, NewStuffActivity.class);
+                i.putExtra(NewStuffActivity.INPUT_TYPE, "lost");
+                startActivity(i);
             }
         });
 
@@ -146,8 +157,9 @@ public class MainActivity extends AppCompatActivity {
                         mList.clear();
                         mList.addAll(response.body().getStuff());
                         stuffAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(MainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                    Toast.makeText(MainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
                     ErrorResponse error = RetrofitErrorUtils.parseError(response);
                     String errorMessage = error.message();

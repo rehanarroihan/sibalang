@@ -43,9 +43,10 @@ public interface ApiInterface {
     @Multipart
     @POST("stuff")
     Call<GeneralResponse> addStuff(
-            @Field("nim") String nim,
-            @Field("name") String name,
-            @Field("description") String description,
+            @Part("id_user") RequestBody id_user,
+            @Part("type") RequestBody type,
+            @Part("name") RequestBody name,
+            @Part("description") RequestBody description,
             @Part MultipartBody.Part photo
     );
 
