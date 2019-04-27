@@ -1,12 +1,10 @@
 package com.uyab.sibalang;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.livinglifetechway.quickpermissions.annotations.WithPermissions;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.uyab.sibalang.Util.GlobalConfig;
 import com.uyab.sibalang.Util.RetrofitErrorUtils;
@@ -38,7 +37,9 @@ import retrofit2.Response;
 
 public class NewStuffActivity extends AppCompatActivity {
     public static String INPUT_TYPE = "INPUT_TYPE";
-    static final int REQUEST_IMAGE_GET = 1;
+
+    private static final int REQUEST_IMAGE_GET = 1;
+
     private ImageView ivPicture;
     private EditText etName, etDescription;
     private String imagePath, type;
@@ -79,6 +80,11 @@ public class NewStuffActivity extends AppCompatActivity {
         });
     }
 
+    @WithPermissions(
+            permissions = {Manifest.permission.READ_EXTERNAL_STORAGE},
+            rationaleMessage = "Mohon aktifkan perizinan agar dapat mengambil foto",
+            permanentlyDeniedMessage = "Foto tidak dapat diambil jika anda tidak memberikan izin"
+    )
     private void pickPhoto() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -89,7 +95,7 @@ public class NewStuffActivity extends AppCompatActivity {
 
     private void doUpload() {
         if(imagePath == null) {
-            Toast.makeText(NewStuffActivity.this, "Silahkan pilih gambar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Silahkan pilih gambar", Toast.LENGTH_SHORT).show();
             return;
         }
 
