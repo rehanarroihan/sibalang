@@ -66,7 +66,7 @@ public class StuffDetailActivity extends AppCompatActivity {
         textViewName.setText(stuff.getName());
         textViewDesc.setText(stuff.getDescription());
         textViewDate.setText("Ditemukan pada: " + stuff.getDate());
-        if(stuff.getTurned().equals("1")) {
+        if(stuff.getClaimer() != null) {
             textViewStatus.setText("Status: Sudah bertemu pemilik");
             btnClaim.setVisibility(View.GONE);
         } else {

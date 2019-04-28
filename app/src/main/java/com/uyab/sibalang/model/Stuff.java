@@ -8,6 +8,10 @@ import com.google.gson.annotations.SerializedName;
 public class Stuff implements Parcelable {
     @SerializedName("id")
     private String id;
+    @SerializedName("id_user")
+    private String id_user;
+    @SerializedName("type")
+    private String type;
     @SerializedName("name")
     private String name;
     @SerializedName("description")
@@ -16,21 +20,20 @@ public class Stuff implements Parcelable {
     private String date;
     @SerializedName("photo")
     private String photo;
-    @SerializedName("turned")
-    private String turned;
-    @SerializedName("nim")
-    private String nim;
+    @SerializedName("claimer")
+    private String claimer;
 
     public Stuff() {}
 
-    public Stuff(String id, String name, String description, String date, String photo, String turned, String nim) {
+    public Stuff(String id, String id_user, String type, String name, String description, String date, String photo, String claimer) {
         this.id = id;
+        this.id_user = id_user;
+        this.type = type;
         this.name = name;
         this.description = description;
         this.date = date;
         this.photo = photo;
-        this.turned = turned;
-        this.nim = nim;
+        this.claimer = claimer;
     }
 
     public String getId() {
@@ -39,6 +42,22 @@ public class Stuff implements Parcelable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getId_user() {
+        return id_user;
+    }
+
+    public void setId_user(String id_user) {
+        this.id_user = id_user;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -73,20 +92,12 @@ public class Stuff implements Parcelable {
         this.photo = photo;
     }
 
-    public String getTurned() {
-        return turned;
+    public String getClaimer() {
+        return claimer;
     }
 
-    public void setTurned(String turned) {
-        this.turned = turned;
-    }
-
-    public String getNim() {
-        return nim;
-    }
-
-    public void setNim(String nim) {
-        this.nim = nim;
+    public void setClaimer(String claimer) {
+        this.claimer = claimer;
     }
 
 
@@ -98,22 +109,24 @@ public class Stuff implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.id);
+        dest.writeString(this.id_user);
+        dest.writeString(this.type);
         dest.writeString(this.name);
         dest.writeString(this.description);
         dest.writeString(this.date);
         dest.writeString(this.photo);
-        dest.writeString(this.turned);
-        dest.writeString(this.nim);
+        dest.writeString(this.claimer);
     }
 
     protected Stuff(Parcel in) {
         this.id = in.readString();
+        this.id_user = in.readString();
+        this.type = in.readString();
         this.name = in.readString();
         this.description = in.readString();
         this.date = in.readString();
         this.photo = in.readString();
-        this.turned = in.readString();
-        this.nim = in.readString();
+        this.claimer = in.readString();
     }
 
     public static final Parcelable.Creator<Stuff> CREATOR = new Parcelable.Creator<Stuff>() {
