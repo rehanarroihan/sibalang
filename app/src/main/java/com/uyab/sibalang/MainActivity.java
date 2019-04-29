@@ -1,29 +1,24 @@
 package com.uyab.sibalang;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
-import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.uyab.sibalang.Util.GlobalConfig;
 import com.uyab.sibalang.Util.RetrofitErrorUtils;
 import com.uyab.sibalang.adapter.StuffAdapter;
+import com.uyab.sibalang.adapter.StuffColumnAdapter;
 import com.uyab.sibalang.api.ApiClient;
 import com.uyab.sibalang.api.ApiInterface;
 import com.uyab.sibalang.model.ErrorResponse;
@@ -38,13 +33,16 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = "MainActivity";
-    private RecyclerView rv;
-    private ArrayList<Stuff> mList;
-    private ArrayList<Stuff> mListAll = new ArrayList<>();
+    private RecyclerView rvLost, rvFound;
+    private ArrayList<Stuff> lostList, foundList;
+    private ArrayList<Stuff> lostListAll = new ArrayList<>();
+    private ArrayList<Stuff> foundListAll = new ArrayList<>();
     private StuffAdapter stuffAdapter;
+    private StuffColumnAdapter stuffColumnAdapter;
 
     boolean isFiltered;
-    ArrayList<Integer> mListMapFilter = new ArrayList<>();
+    ArrayList<Integer> mListLostFilter = new ArrayList<>();
+    ArrayList<Integer> mListFoundFilter = new ArrayList<>();
     String mQuery;
 
     @Override
@@ -72,14 +70,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        TextView tvRefresh = findViewById(R.id.textViewRefresh);
-        tvRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getData();
-            }
-        });
-
         FloatingActionButton btnAddFound = findViewById(R.id.buttonAddFound);
         FloatingActionButton btnAddLost = findViewById(R.id.buttonAddLost);
         btnAddFound.setOnClickListener(new View.OnClickListener() {
@@ -100,48 +90,81 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        rv = findViewById(R.id.recyclerViewList);
-        mList = new ArrayList<>();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
-        rv.setLayoutManager(layoutManager);
-        stuffAdapter = new StuffAdapter(mList, new StuffAdapter.StuffInterface() {
+        rvLost = findViewById(R.id.recyclerViewLost);
+        lostList = new ArrayList<>();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        rvLost.setLayoutManager(layoutManager);
+        stuffColumnAdapter = new StuffColumnAdapter(lostList, new StuffColumnAdapter.StuffInterface() {
             @Override
             public void doClick(int post) {
                 Stuff stuff = new Stuff();
-                stuff = mList.get(post);
+                stuff = lostList.get(post);
 
                 Intent i = new Intent(MainActivity.this, StuffDetailActivity.class);
                 i.putExtra(StuffDetailActivity.STUFF_DATA, stuff);
                 startActivity(i);
             }
         }, MainActivity.this);
-        rv.setAdapter(stuffAdapter);
+        rvLost.setAdapter(stuffColumnAdapter);
+
+        rvFound = findViewById(R.id.recyclerViewFound);
+        foundList = new ArrayList<>();
+        LinearLayoutManager layoutManager2 = new LinearLayoutManager(MainActivity.this);
+        rvFound.setLayoutManager(layoutManager2);
+        stuffAdapter = new StuffAdapter(foundList, new StuffAdapter.StuffInterface() {
+            @Override
+            public void doClick(int post) {
+                Stuff stuff = new Stuff();
+                stuff = foundList.get(post);
+
+                Intent i = new Intent(MainActivity.this, StuffDetailActivity.class);
+                i.putExtra(StuffDetailActivity.STUFF_DATA, stuff);
+                startActivity(i);
+            }
+        }, MainActivity.this);
+        rvFound.setAdapter(stuffAdapter);
+
         getData();
     }
 
     private void doFilter(String query) {
         if (!isFiltered) {
-            mListAll.clear();
-            mListAll.addAll(mList);
+            lostListAll.clear();
+            foundListAll.clear();
+            lostListAll.addAll(lostList);
+            foundListAll.addAll(foundList);
             isFiltered = true;
         }
 
-        mList.clear();
+        lostList.clear();
+        foundList.clear();
         if (query == null || query.isEmpty()) {
-            mList.addAll(mListAll);
+            lostList.addAll(lostListAll);
+            foundList.addAll(foundListAll);
             isFiltered = false;
         } else {
-            mListMapFilter.clear();
-            for (int i = 0; i < mListAll.size(); i++) {
-                Stuff stuff= mListAll.get(i);
+            mListLostFilter.clear();
+            for (int i = 0; i < lostListAll.size(); i++) {
+                Stuff stuff= lostListAll.get(i);
                 if (stuff.getName().toLowerCase().contains(query) ||
                         stuff.getDescription().toLowerCase().contains(query)) {
-                    mList.add(stuff);
-                    mListMapFilter.add(i);
+                    lostList.add(stuff);
+                    mListLostFilter.add(i);
+                }
+            }
+
+            mListFoundFilter.clear();
+            for (int i = 0; i < foundListAll.size(); i++) {
+                Stuff stuff = foundListAll.get(i);
+                if (stuff.getName().toLowerCase().contains(query) ||
+                        stuff.getDescription().toLowerCase().contains(query)) {
+                    foundList.add(stuff);
+                    mListFoundFilter.add(i);
                 }
             }
         }
         stuffAdapter.notifyDataSetChanged();
+        stuffColumnAdapter.notifyDataSetChanged();
     }
 
     private void getData() {
@@ -153,10 +176,7 @@ public class MainActivity extends AppCompatActivity {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
-                        Log.d("id", new Gson().toJson(response.body().getStuff()));
-                        mList.clear();
-                        mList.addAll(response.body().getStuff());
-                        stuffAdapter.notifyDataSetChanged();
+                        separateDataType(response.body().getStuff());
                     } else {
                         Toast.makeText(MainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -175,6 +195,22 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.no_internet_message), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void separateDataType(ArrayList<Stuff> list) {
+        lostList.clear();
+        foundList.clear();
+        if(list.size() > 0) {
+            for (Stuff st : list) {
+                if (st.getType().equals("lost")) {
+                    lostList.add(st);
+                } else {
+                    foundList.add(st);
+                }
+            }
+        }
+        stuffAdapter.notifyDataSetChanged();
+        stuffColumnAdapter.notifyDataSetChanged();
     }
 
     private void doLogout() {
