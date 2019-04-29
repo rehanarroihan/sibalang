@@ -3,6 +3,7 @@ package com.uyab.sibalang;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -37,10 +38,18 @@ public class StuffDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stuff_detail);
-        setTitle("Detail Barang Hilang");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         final Stuff stuff = intent.getParcelableExtra(STUFF_DATA);
+
+        String title;
+        if(stuff.getType().equals("lost")) {
+            title = "Detail Barang Hilang";
+        } else {
+            title = "Detail Barang Ditemukan";
+        }
+        setTitle(title);
 
         imageViewPict = findViewById(R.id.imageViewPict);
         textViewName = findViewById(R.id.textViewName);
@@ -66,13 +75,7 @@ public class StuffDetailActivity extends AppCompatActivity {
         textViewName.setText(stuff.getName());
         textViewDesc.setText(stuff.getDescription());
         textViewDate.setText("Ditemukan pada: " + stuff.getDate());
-        if(stuff.getClaimer() != null) {
-            textViewStatus.setText("Status: Sudah bertemu pemilik");
-            btnClaim.setVisibility(View.GONE);
-        } else {
-            textViewStatus.setText("Status: Belum bertemu pemilik");
-            btnClaim.setVisibility(View.VISIBLE);
-        }
+        textViewStatus.setText("Status: Belum bertemu pemilik");
 
         getStuffDetail(stuff.getId());
     }
@@ -134,5 +137,13 @@ public class StuffDetailActivity extends AppCompatActivity {
                 Toast.makeText(StuffDetailActivity.this, getResources().getString(R.string.no_internet_message), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -5,6 +5,10 @@ import com.google.gson.annotations.SerializedName;
 public class StuffDetail {
     @SerializedName("id")
     private String id;
+    @SerializedName("id_user")
+    private String id_user;
+    @SerializedName("type")
+    private String type;
     @SerializedName("name")
     private String name;
     @SerializedName("description")
@@ -13,11 +17,11 @@ public class StuffDetail {
     private String date;
     @SerializedName("photo")
     private String photo;
-    @SerializedName("turned")
-    private String turned;
+    @SerializedName("claimer")
+    private String claimer;
     @SerializedName("nim")
     private String nim;
-    @SerializedName("fullname")
+    @SerializedName("full_name")
     private String fullname;
     @SerializedName("departmen")
     private String departmen;
@@ -28,13 +32,17 @@ public class StuffDetail {
     @SerializedName("position")
     private String position;
 
-    public StuffDetail(String id, String name, String description, String date, String photo, String turned, String nim, String fullname, String departmen, String program, String phone, String position) {
+    public StuffDetail() {}
+
+    public StuffDetail(String id, String id_user, String type, String name, String description, String date, String photo, String claimer, String nim, String fullname, String departmen, String program, String phone, String position) {
         this.id = id;
+        this.id_user = id_user;
+        this.type = type;
         this.name = name;
         this.description = description;
         this.date = date;
         this.photo = photo;
-        this.turned = turned;
+        this.claimer = claimer;
         this.nim = nim;
         this.fullname = fullname;
         this.departmen = departmen;
@@ -49,6 +57,22 @@ public class StuffDetail {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getId_user() {
+        return id_user;
+    }
+
+    public void setId_user(String id_user) {
+        this.id_user = id_user;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -83,12 +107,12 @@ public class StuffDetail {
         this.photo = photo;
     }
 
-    public String getTurned() {
-        return turned;
+    public String getClaimer() {
+        return claimer;
     }
 
-    public void setTurned(String turned) {
-        this.turned = turned;
+    public void setClaimer(String claimer) {
+        this.claimer = claimer;
     }
 
     public String getNim() {
