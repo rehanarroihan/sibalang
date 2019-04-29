@@ -64,6 +64,7 @@
                 android:text="STN Becak Motor Atas Nama Sukardi Mangkuwanito" />
 
             <TextView
+                android:id="@+id/textViewState"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/google_sans_medium"
@@ -104,6 +105,7 @@
             android:layout_marginEnd="16dp"
             android:background="@drawable/rounded_button"
             android:text="Claim"
+            android:layout_marginBottom="16dp"
             android:fontFamily="@font/google_sans_bold"
             android:textColor="@android:color/white"/>
 

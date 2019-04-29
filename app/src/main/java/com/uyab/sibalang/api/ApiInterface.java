@@ -59,6 +59,7 @@ public interface ApiInterface {
     @FormUrlEncoded
     @POST("stuff/turn")
     Call<GeneralResponse> turnStuff(
-            @Field("stuff_id") String stuffId
+            @Field("stuff_id") String stuffId,
+            @Field("claimer_user_id") String claimer_user_id
     );
 }

@@ -1,6 +1,8 @@
 package com.uyab.sibalang;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -29,10 +31,7 @@ import retrofit2.Response;
 
 public class StuffDetailActivity extends AppCompatActivity {
     public static final String STUFF_DATA = "STUFF_DATA";
-    private ImageView imageViewPict;
-    private TextView textViewName, textViewDate, textViewStatus, textViewDesc;
-    private TextView tvNama, tvProdi, tvWA;
-    private Button btnClaim;
+    private TextView tvNama, tvProdi, tvWA, tvState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,30 +43,47 @@ public class StuffDetailActivity extends AppCompatActivity {
         final Stuff stuff = intent.getParcelableExtra(STUFF_DATA);
 
         String title;
+        String dataState;
         if(stuff.getType().equals("lost")) {
+            dataState = "Data Pencari";
             title = "Detail Barang Hilang";
         } else {
+            dataState = "Data Penemu";
             title = "Detail Barang Ditemukan";
         }
         setTitle(title);
 
-        imageViewPict = findViewById(R.id.imageViewPict);
-        textViewName = findViewById(R.id.textViewName);
-        textViewDate = findViewById(R.id.textViewDate);
-        textViewDesc = findViewById(R.id.textViewDesc);
-        textViewStatus = findViewById(R.id.textViewStatus);
-        btnClaim = findViewById(R.id.buttonClaim);
+        ImageView imageViewPict = findViewById(R.id.imageViewPict);
+        TextView textViewName = findViewById(R.id.textViewName);
+        TextView textViewDate = findViewById(R.id.textViewDate);
+        TextView textViewDesc = findViewById(R.id.textViewDesc);
+        TextView textViewStatus = findViewById(R.id.textViewStatus);
+        Button btnClaim = findViewById(R.id.buttonClaim);
 
         btnClaim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doClaim(stuff.getId());
+                AlertDialog.Builder builder = new AlertDialog.Builder(StuffDetailActivity.this);
+                builder.setMessage("Apakah anda akan meng claim barang ini ?")
+                        .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                doClaim(stuff.getId());
+                            }
+                        })
+                        .setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
+                builder.create().show();
             }
         });
 
         tvNama = findViewById(R.id.textViewUser);
         tvProdi = findViewById(R.id.textViewFakultas);
         tvWA = findViewById(R.id.textViewWa);
+        tvState = findViewById(R.id.textViewState);
+        tvState.setText(dataState);
 
         Glide.with(this)
                 .load(GlobalConfig.IMAGE_BASE_URL + stuff.getPhoto())
@@ -82,16 +98,19 @@ public class StuffDetailActivity extends AppCompatActivity {
 
     private void doClaim(String id) {
         ApiInterface api = ApiClient.getClient().create(ApiInterface.class);
-        Call<GeneralResponse> stuffTurnCall = api.turnStuff(id);
+        Call<GeneralResponse> stuffTurnCall = api.turnStuff(id, Prefs.getString(GlobalConfig.USER_ID, null));
         stuffTurnCall.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
+                        MainActivity.self.finish();
+                        Intent intent = new Intent(StuffDetailActivity.this, MainActivity.class);
+                        startActivityForResult(intent, GlobalConfig.REFRESH_REQUEST_CODE);
                         finish();
-                        Toast.makeText(StuffDetailActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                    Toast.makeText(StuffDetailActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
                     ErrorResponse error = RetrofitErrorUtils.parseError(response);
                     String errorMessage = error.message();
@@ -118,7 +137,7 @@ public class StuffDetailActivity extends AppCompatActivity {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
-                        tvNama.setText("Nama Penemu: " + response.body().getStuff().getFullname());
+                        tvNama.setText("Nama: " + response.body().getStuff().getFullname());
                         tvProdi.setText("Fakultas/Prodi: " + response.body().getStuff().getDepartmen() + "/" + response.body().getStuff().getProgram());
                         tvWA.setText("Nomor Whatsapp: " + response.body().getStuff().getPhone());
                     }

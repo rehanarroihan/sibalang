@@ -124,7 +124,9 @@ public class NewStuffActivity extends AppCompatActivity {
                 if ((response.isSuccessful()) && (response.errorBody() == null)) {
                     String errorCode = response.body().getErrCode();
                     if (errorCode.equals("00")) {
-                        Log.d("Upload", new Gson().toJson(response.body()));
+                        MainActivity.self.finish();
+                        Intent intent = new Intent(NewStuffActivity.this, MainActivity.class);
+                        startActivityForResult(intent, GlobalConfig.REFRESH_REQUEST_CODE);
                         finish();
                     }
                     Toast.makeText(NewStuffActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();

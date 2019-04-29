@@ -1,7 +1,9 @@
 package com.uyab.sibalang;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +35,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = "MainActivity";
+    public static Activity self;
     private RecyclerView rvLost, rvFound;
     private ArrayList<Stuff> lostList, foundList;
     private ArrayList<Stuff> lostListAll = new ArrayList<>();
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Si Balang");
+        self = this;
 
         SearchView searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(
@@ -220,6 +224,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == GlobalConfig.REFRESH_REQUEST_CODE) {
+            getData();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
@@ -231,6 +243,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.logout:
                 doLogout();
+                return true;
+            case R.id.refresh:
+                getData();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
